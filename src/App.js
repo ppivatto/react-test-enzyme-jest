@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import logo from './logo.svg';
 import './App.css';
+import GuessedWords from './GuessedWords';
+import Congrats from './Congrats';
 
 class App extends Component{
     
@@ -14,14 +15,12 @@ class App extends Component{
   
   render() {
       return (
-          <div data-test='component-app' >
-              <h1 data-test='counter-display' >The counter is currently {this.state.counter}</h1>
-              <button 
-                  data-test='increment-button'
-                  onClick={() => this.setState({ counter: this.state.counter + 1 })}
-              >
-                  Increment Counter
-              </button>
+          <div data-test='component-app' className={'container'} >
+              <h1>Jotto</h1>
+              <Congrats success={true} />
+              <GuessedWords guessedWords={[
+                  { guessedWord: 'train', letterMatchCount: 3 }
+              ]} />
           </div>
       )
   }
