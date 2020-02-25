@@ -1,10 +1,9 @@
 import React from 'react';
-import Enzyme, { shallow } from 'enzyme';
-import EnzymeAdapter from 'enzyme-adapter-react-16';
+import { shallow } from 'enzyme';
 
-import App from './App';
+import { storeFactory } from '../test/testUtils';
+import App, { UnconnectedApp } from './App';
 
-Enzyme.configure({ adapter: new EnzymeAdapter() });
 
 /**
  * Factory function to create a ShallowWrapper for the App component
@@ -13,63 +12,63 @@ Enzyme.configure({ adapter: new EnzymeAdapter() });
  * @param {object} state - Initial state for setup
  * @returns {ShallowWrapper}
  */
-const setup = ( props= {}, state = null) => {
-    const wrapper = shallow( <App {...props} /> );
-    
-    if (state) {
-        wrapper.setState(state);
-    }
-    
+const setup = (state = {}) => {
+    const store = storeFactory(state);
+    const wrapper = shallow(<App store={store} />).dive().dive();
     return wrapper;
 };
 
-/**
- * Return ShallowWrapper containing node(s) with the given data-test value
- * @param {ShallowWrapper} wrapper - Enzyme shallow wrapper to search within
- * @param {String} val - Value of data-test attribute for search
- * @returns {ShallowWrapper}
- */
-const findByTestAttr = (wrapper, val) => {
-    return wrapper.find(`[data-test="${val}"]`)
-};
 
-
-test('renders without errors', () => {
-    const wrapper = setup();
-    const appComponent = findByTestAttr(wrapper, 'component-app');
+describe('redux properties', () => {
+    test('has access to "success" state', () => {
+        const success = true;
+        const wrapper = setup({ success });
+        const successProp = wrapper.instance().props.success;
     
-    expect(appComponent.length).toBe(1);
-});
-/*
-test('renders increment button', () => {
-    const wrapper = setup();
-    const button = findByTestAttr(wrapper, 'increment-button');
+        expect(successProp).toBe(success);
+    });
     
-    expect(button.length).toBe(1);
-});
-
-test('renders counter display', () => {
-    const wrapper = setup();
-    const counterDisplay = findByTestAttr(wrapper, 'counter-display');
+    test('has access to "secretWord" state', () => {
+        const secretWord = 'party';
+        const wrapper = setup({ secretWord });
+        const secretWordProp = wrapper.instance().props.secretWord;
     
-    expect(counterDisplay.length).toBe(1);
-});
-
-test('counter starts at 0', () => {
-    const wrapper = setup();
-    const initialCounterState = wrapper.state('counter');
-    expect(initialCounterState).toBe(0)
+        expect(secretWordProp).toBe(secretWord);
+    });
+    
+    test('has access to "guessedWords" state', () => {
+        const guessedWords = [ { guessedWord: 'train', letterMatchCount: 3 } ];
+        const wrapper = setup({ guessedWords });
+        const guessedWordsProp = wrapper.instance().props.guessedWords;
+    
+        expect(guessedWordsProp).toBe(guessedWords);
+    });
+    
+    test('"getSecretWord" action creator is a function on the props', () => {
+        const wrapper = setup();
+        const getSecretWordProp = wrapper.instance().props.getSecretWord;
+    
+        expect(getSecretWordProp).toBeInstanceOf(Function);
+    });
 });
 
-test('clicking button increments counter display', () => {
-    const counter = 7;
-    const wrapper = setup(null, { counter });
+test('"getSecretWord" runs on App mount', () => {
+    const getSecretWordMock = jest.fn();
     
-    //Find button and simulate click
-    const button = findByTestAttr(wrapper, 'increment-button');
-    button.simulate('click');
+    const props = {
+        getSecretWord: getSecretWordMock,
+        success: false,
+        guessedWords: [],
+    };
     
-    //Find display and test value
-    const counterDisplay = findByTestAttr(wrapper, 'counter-display');
-    expect(counterDisplay.text()).toContain(counter + 1);
-});*/
+    //set up app component with getSecretWordMock as the getSecretWord prop
+    const wrapper = shallow( <UnconnectedApp {...props} /> );
+    
+    //run lifecycle method
+    wrapper.instance().componentDidMount();
+    
+    //check to see if mock ran
+    const getSecretWordCallCount = getSecretWordMock.mock.calls.length;
+    
+    expect(getSecretWordCallCount).toBe(1);
+});
