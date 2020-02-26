@@ -14,7 +14,7 @@ const setup = (initialState={}) => {
     const store = storeFactory(initialState);
     const wrapper = shallow(<Input store={store} />).dive().dive();
     return wrapper;
-}
+};
 
 describe('render', () => {
     describe('word has not been guessed', () => {
@@ -75,6 +75,7 @@ describe('`guessWord` action creator', () => {
     let guessWordMock;
     let wrapper;
     const guessedWord = "train";
+    
     beforeEach(() => {
         // create a mock function for `getSecretWord`
         guessWordMock = jest.fn();
@@ -89,16 +90,18 @@ describe('`guessWord` action creator', () => {
         const submit = findByTestAttr(wrapper, 'submit-button');
         submit.simulate('click', { preventDefault() {} });
     });
+    
     test('`guessWord` was called once', () => {
         const guessWordCallCount = guessWordMock.mock.calls.length;
         expect(guessWordCallCount).toBe(1);
     });
+    
     test('calls `guessWord with input value as argument`', () => {
         const guessWordArg = guessWordMock.mock.calls[0][0];
         expect(guessWordArg).toBe(guessedWord);
     });
+    
     test('input box clears on submit', () => {
         expect(wrapper.state('currentGuess')).toBe('');
     })
-    
 });

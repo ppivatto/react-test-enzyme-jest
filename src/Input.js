@@ -4,21 +4,18 @@ import { connect } from 'react-redux';
 import { guessWord } from './actions';
 
 export class UnconnectedInput extends Component {
-    /**
-     * @method constructor
-     * @param {object} props - Component props.
-     * @returns {undefined}
-     */
+    
     constructor(props) {
         super(props);
         
         // initialize state
-        this.state = { currentGuess: null }
+        this.state = { currentGuess: null };
         
         // bind this for submitGuessedWord
-        this.submitGuessedWord = this.submitGuessedWord.bind(this);
+      //  this.submitGuessedWord = this.submitGuessedWord.bind(this);
     }
-    submitGuessedWord(evt) {
+    
+    submitGuessedWord = (evt) => {
         evt.preventDefault();
         const guessedWord = this.state.currentGuess;
         
@@ -26,7 +23,8 @@ export class UnconnectedInput extends Component {
             this.props.guessWord(guessedWord);
             this.setState({ currentGuess: '' })
         }
-    }
+    };
+    
     render() {
         const contents = this.props.success
             ? null
